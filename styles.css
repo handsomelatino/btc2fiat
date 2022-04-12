@@ -36,6 +36,12 @@ body {
   min-height: fill-available;
 }
 
+/* For mobile devices on landscape mode or with the keyboard open, prevent the calculator */
+/* section from being to small and collapsing the header and footer: */
+#above-the-fold.sharing-visible {
+  min-height: 600px;
+}
+
 main {
   opacity: 0;
   transform: translateY(4px);
@@ -238,19 +244,24 @@ input.amount:focus {
 }
 
 #section-share {
-  width: 480px;
+  width: 96%;
+  max-width: 480px;
+
   margin: 0 auto;
   text-align: center;
 
-  height: 0;
   max-height: 0;
+  overflow: hidden;
+
   opacity: 0;
   transition: 0.3s opacity, 0.5s max-height 0.1s;
 }
 
 #section-share.section-share-reveal {
-  height: unset;
   opacity: 1;
+  max-height: 280px;
+  overflow: visible;
+
   transition: 0.5s max-height, 0.5s opacity 0.3s;
 }
 
@@ -493,10 +504,6 @@ a {
 
   .equal-sign {
     display: none;
-  }
-
-  #section-share {
-    width: unset;
   }
 
   #section-share p {

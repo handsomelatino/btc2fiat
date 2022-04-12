@@ -333,13 +333,17 @@ function updateShareURL(value, currency) {
 
 function handleClickShareButton() {
   const sectionShare = document.getElementById('section-share');
-  sectionShare.classList.add('section-share-reveal')
-  sectionShare.style.maxHeight = 280;
+  sectionShare.classList.add('section-share-reveal');
+
+  document.getElementById('above-the-fold').classList.add('sharing-visible');
+  sectionShare.scrollIntoView({ behavior: "smooth" });
 }
 
 function handleClickShareClose() {
   const sectionShare = document.getElementById('section-share');
-  sectionShare.classList.remove('section-share-reveal')
+  sectionShare.classList.remove('section-share-reveal');
+
+  document.getElementById('above-the-fold').classList.remove('sharing-visible');
 }
 
 function handleClickCopyLink() {
