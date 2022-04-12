@@ -319,10 +319,14 @@ function handleShowAbout() {
   belowTheFold.classList.remove('hidden');
 
   const resize = new ResizeObserver(() => {
-    belowTheFold.scrollIntoView({ behavior: 'smooth' });
+    // -> On mobile Chrome, when the keyboard is open (ie: the BTC input is active), the element won't be visible
+    // since the touch keyboard closing prevents the scrolling to happen without a timeout
+    // (0 was tested, but if "share" is open, it will still not scroll into view)
+    setTimeout(() => belowTheFold.scrollIntoView({ behavior: 'smooth' }), 100);
     resize.disconnect();
   });
 
+  // Do not scroll until the observer sees the element.
   resize.observe(belowTheFold);
 }
 

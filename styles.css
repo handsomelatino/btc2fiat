@@ -493,10 +493,6 @@ a {
 }
 
 @media screen and (max-width: 820px) {
-  main {
-    /* background-color: blue; */
-  }
-
   .calculator {
     flex-direction: column;
     gap: 40px;
