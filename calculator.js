@@ -10,6 +10,7 @@ const validInteger = new RegExp(/^\d*$/);
 
 let copyLinkTimer;
 
+// Saved query selectors on init:
 let currentPrice = null;
 let btcInput = null;
 let satsInput = null;
@@ -317,7 +318,12 @@ function handleShowAbout() {
   const belowTheFold = document.getElementById('below-the-fold');
   belowTheFold.classList.remove('hidden');
 
-  belowTheFold.scrollIntoView({ behavior: 'smooth' });
+  const resize = new ResizeObserver(() => {
+    belowTheFold.scrollIntoView({ behavior: 'smooth' });
+    resize.disconnect();
+  });
+
+  resize.observe(belowTheFold);
 }
 
 function updateShareURL(value, currency) {
@@ -328,6 +334,7 @@ function updateShareURL(value, currency) {
 function handleClickShareButton() {
   const sectionShare = document.getElementById('section-share');
   sectionShare.classList.add('section-share-reveal')
+  sectionShare.style.maxHeight = 280;
 }
 
 function handleClickShareClose() {

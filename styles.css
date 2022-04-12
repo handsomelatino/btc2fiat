@@ -242,14 +242,15 @@ input.amount:focus {
   margin: 0 auto;
   text-align: center;
 
+  height: 0;
   max-height: 0;
   opacity: 0;
   transition: 0.3s opacity, 0.5s max-height 0.1s;
 }
 
 #section-share.section-share-reveal {
+  height: unset;
   opacity: 1;
-  max-height: 280px;
   transition: 0.5s max-height, 0.5s opacity 0.3s;
 }
 
