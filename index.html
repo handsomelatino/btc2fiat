@@ -1,0 +1,113 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>B2F – Bitcoin to Fiat Calculator</title>
+    <meta name="description" content="No BS conversion between Bitcoin (BTC) and the world's most used fiat currency - USD.">
+    <script src="calculator.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <section id="above-the-fold">
+      <header>
+        <h1><strong>B</strong><sup>2</sup><sub>F</sub></h1>
+        <div id="btc-sats-toggle" data-selected="btc">
+          <div id='btc-toggle' role="button" class="toggle selected" data-value="btc">BTC</div>
+          <div id='sats-toggle' role="button" class="toggle" data-value="sats">Sats</div>
+        </div>
+      </header>
+
+      <section id="loading-overlay">
+        <h1><strong>B</strong><sup>2</sup><sub>F</sub></h1>
+        <p class="loading-subtitle">Fetching exchange rate from CoinGecko...</p>
+        <p class="loading-error hidden">⚠️ &nbsp; Error fetching USD to BTC exchange rate from CoinGecko.</p>
+      </section>
+
+      <main>
+        <section class="calculator">
+          <div>
+            <div id="btc-input-container" class="currency">
+              <input id="btc-input" class="amount" inputmode="numeric" type="text">
+              <div class="unit">BTC</div>
+            </div>
+            <div id="sats-input-container" class="currency hidden">
+              <input id="sats-input" inputmode="numeric" class="amount" type="text">
+              <div class="unit">Sats</div>
+            </div>
+            <div id="sats-amount" class='conversion-amount'>0 Sats</div>
+            <div id="btc-amount" class="conversion-amount hidden">0 BTC</div>
+          </div>
+          
+          <div class="equal-sign"> = </div>
+
+          <div>
+            <div class="currency">
+              <input id="fiat-input" type="text" inputmode="numeric" class="amount">
+              <div class="unit">USD</div>
+            </div>
+            <div id="fiat-amount" class='conversion-amount'>$ 0</div>
+          </div>
+        </section>
+
+        <section id="section-share">
+          <p>
+            Type a custom amount in BTC, Sats or USD in the inputs above to share a direct link to that amount:
+          </p>
+
+          <div class="share-url">
+            <input id="share-input" type="text" readonly value="https://btc2fiat.me/?q=1+btc">
+            <button id="share-copy-link">Copy Link</button>
+          </div>
+          <div id="share-link-copied">Link copied to clipboard</div>
+
+          <div id="share-button-close" class='link-button' role="button">Close</div>
+        </section>        
+      </main>
+      
+      <footer>
+        <!-- <div className="powered-by-coingecko">Powered by <a href="https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin">CoinGecko</a></div> -->      
+        <div id='link-button' role="button">About</div>
+        <div id="share-button" class='link-button' role="button">Share</div>
+      </footer>
+    </section>
+
+    <section id="below-the-fold" class="hidden">
+      <section class="about">
+        <h2><span>About</span></h2>
+
+        <p class="created-by">No-BS BTC to USD converter. By <a href="https://handsomelatino.com">Handsome Latino</a></p>
+        <p class="powered-by">BTC/USD conversion powered by <a href="https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin">CoinGecko API</a></p>
+        
+        <div class="project-info">
+          <div class="info-title">BTC<strong>2</strong>Fiat.me</div>
+          <div class="info-description">
+            <p><strong>B2F</strong> for short is a lightweight and distraction-free conversion tool, created for Bitcoin enthusiasts who value privacy and digital minimalism.</p>
+            <p><strong>B2F</strong> is free from charts, click-bait news, FUD, candles, or any other irrelevant information. We don't collect any cookies to track you, nor do we sell your information or try to profit from it.</p>
+          </div>
+          
+          <div class="info-title">Open Source</div>
+          <div class="info-description">
+            <p>The open source code is extremely lightweight (less than 30 KB). You're more than welcome to <a href="https://github.com/handsomelatino/btc2fiat" target="_blank">audit the Github repository</a> and submit bugs.</p>
+            <p>Even better: become sovereign and <strong>launch it on your server or web host</strong> simply by uploading the source files:</p>
+            
+            <div class="github-link">
+              <img src="github_mark.png" /><a href="https://github.com/handsomelatino/btc2fiat" target="_blank">https://github.com/handsomelatino/btc2fiat</a></p>
+            </div>
+          </div>
+          
+          <div class="info-title">Support Me</div>
+          <div class="info-description">
+            <p>A small donation for the cause can help us create a revolution.</p>
+            <p>Learn how your donation and support, no matter how small, can help us bring awareness about Bitcoin to the world.</p>
+            <p class="center"><a class="donate-button" href="https://pay.handsomelatino.com/api/v1/invoices?storeId=3zecRWVXGTMtpsE4157U8hjzL9iwBfPFBroABh3oWD3r&currency=USD" target="_blank">Donate Bitcoin</a></p>
+            <p class="donate-caption">After you click on the Donate button, simply scan or copy the Bitcoin address on your favorite wallet.</p>
+          </div>
+        </div>
+
+        <p class="not-your-keys-not-your-coins"><strong>DISCLAIMER:</strong> All content provided is for informational porpuses and does not constitute legal advice or financial accuracy. Don't trust, verify. Bitcoin can be a highly risky asset that can lead to major losses, <a href="https://www.youtube.com/watch?v=dnC5mFaIW3Q" target="_blank">especially if you don't hold your own keys, securely.</u></p>
+
+      </section>
+    </section>
+  </body>
+</html>
