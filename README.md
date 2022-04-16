@@ -1,25 +1,34 @@
 # BTC2FIAT
 
-No-BS BTC to USD converter hosted at [btc2fiat.me](https://btc2fiat.me), a lighteight (less than 30 KB) converter developed for Bitcoin enthusiasts and digital minimalists, out of frustration of how much noise surrounds most of the Bitcoin space.
+No BS, clean, and simple BTC to USD converter hosted at [btc2fiat.me](https://btc2fiat.me). Open source, lightweight (less than 30 KB) converter developed for Bitcoin enthusiasts and digital minimalists, built out of frustration of how much noise surrounds most of the Bitcoin space.
 
 ![B2F](https://user-images.githubusercontent.com/100208905/163191012-91e73714-7f0e-4f5d-83bf-4262df1de1fa.png)
 
 __BTC/USD conversion powered by [Coingecko API](https://www.coingecko.com/en/api).__
 
-Simple and fast-loading services are especially important when connections are slow (for example while using TOR), slower VPNs, or in regions where internet access is limited.
+The philosophy behind B2F is that minimalistic services in Bitcoin are an important defence against censorship, for example while using slower services such as TOR, VPNs, or in regions where internet access is limited because of technological limitations or malicious actors throttling the network.
 
 ## Running it on your own
 
-Simply upload all files to a folder to any web hosting provider, access the folder or the `index.html` file and the exchange should work.
+Download this repository (ZIP file can be downloaded from Github) and upload all files to any web hosting provider.
 
-You will need an internet connection to fetch the BTC/USD exchange from Coingecko.
+You will need an internet connection to fetch the BTC/USD exchange from Coingecko. Their API request requires no API authentication and is small in size.
 
 ## License
 See [LICENSE](LICENSE).
 
 Except for the B2F logo and BIT2FIAT, the rest of the source code is AGPL v3.0.
 
-The license template is based from [mempool.space's license](https://github.com/mempool/mempool/blob/master/LICENSE) but in no way is it implied that it is related in any way.
+The license template is ~~ripped~~ based on [mempool.space's license](https://github.com/mempool/mempool/blob/master/LICENSE) but in no way is it implied that both are related anyhow.
+
+## Contributing
+Feel free to submit any bugs or suggestions, PR's are open but I am still refactoring some parts of the code and there might be drastic changes without previous notice.
+
+The following features are being thought / worked on:
+
+- Multiple fiat currencies (for now the rationale is that this converter is centered around the world's leading cryptocurrency vs. the world's leading fiat currency).
+
+- Toggle between light and dark mode.
 
 ## A note on privacy
 
