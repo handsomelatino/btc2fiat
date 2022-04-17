@@ -73,6 +73,17 @@ async function initialize() {
     loadingOverlay.parentElement.removeChild(loadingOverlay);
 
     document.getElementsByTagName('main')[0].classList.add('main-fade-in');
+
+    const params = new URLSearchParams(window.location.search);
+
+    // if ?show-about=true -> scroll to the section:
+    if (params.get('show-about')?.toLowerCase() === 'true') {
+      handleShowAbout();
+    }
+
+    if (params.get('show-share')?.toLowerCase() === 'true') {
+      handleClickShareButton();
+    }
   }
   else {
     showFetchingError();
@@ -340,7 +351,16 @@ function handleClickShareButton() {
   sectionShare.classList.add('section-share-reveal');
 
   document.getElementById('above-the-fold').classList.add('sharing-visible');
-  sectionShare.scrollIntoView({ behavior: "smooth" });
+
+  // if the display is too small to show 'share' above the fold, scroll to share after animation: (arbitrary magic numbers)
+  if (document.documentElement.clientHeight <= 600) {
+    setTimeout(() => sectionShare.scrollIntoView({ behavior: 'smooth' }), 300);
+  }
+
+  // when below the fold, scroll all the way to the top:
+  else if (window.scrollY > 0) {
+    window.scrollTo({ top: 0, behavior: 'smooth'});
+  }
 }
 
 function handleClickShareClose() {
