@@ -243,6 +243,32 @@ input.amount:focus {
   min-width: 80px;
 }
 
+.refetch-info {
+  margin: 0 auto;
+  font-style: italic;
+  color: var(--color-gray);
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+#refetch-exchange {
+  color: white;
+  background-color: inherit;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  border: none;
+  font-size: inherit;
+  font-style: italic;
+}
+
+#refetch-exchange:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 #section-share {
   width: 96%;
   max-width: 480px;
@@ -340,11 +366,15 @@ footer {
   margin-bottom: 12px;
 }
 
+footer a {
+  text-decoration: none;
+}
+
 footer div[role=button] {
   cursor: pointer;
 }
 
-footer div[role=button]:hover {
+footer div[role=button]:hover, footer a:hover {
   text-decoration: underline;
 }
 

@@ -1,17 +1,24 @@
 // Constants
-const BITCOIN_API = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin';
+const BITCOIN_API = 'https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd,eur&ids=bitcoin';
 const SATS_PER_BTC = 100000000;
 const BTC_PRECISION = Math.pow(10*8);
 const B2F_URL = "https://btc2fiat.me";
 const NON_BREAKING_SPACE = '\xa0';
+const COMPARE_FETCH_TIME = 30 * 1000;
 
 const validFloat = new RegExp(/^\d*\.?\d*$/);
 const validInteger = new RegExp(/^\d*$/);
 
 let copyLinkTimer;
+let timeCompareInterval = null;
+let currentPrice = null;
+let lastFetchTime = null;
+
+// sets which is the last input that got changed, which stays static
+// when refetching the exchange rate. Values can be ['btc' or 'fiat']:
+let lastEditedInput = null;
 
 // Saved query selectors on init:
-let currentPrice = null;
 let btcInput = null;
 let satsInput = null;
 let btcAmount = null;
@@ -21,6 +28,7 @@ let btcSatsToggle = null;
 let btcToggle = null;
 let satsToggle = null;
 let shareInput = null;
+let lastFetched = null;
 
 window.addEventListener('load', initialize);
 
@@ -33,7 +41,7 @@ async function initialize() {
     }
 
     const data = await response.json();
-    currentPrice = data[0].current_price;
+    currentPrice = data.bitcoin.usd;
   }
   catch (error) {
     console.log(error);
@@ -47,6 +55,7 @@ async function initialize() {
     btcAmount = document.getElementById('btc-amount');
     satsAmount = document.getElementById('sats-amount');
     fiatAmount = document.getElementById('fiat-amount');
+    lastFetched = document.getElementById('last-fetched');
     
     btcSatsToggle = document.getElementById('btc-sats-toggle');
     btcToggle = document.getElementById('btc-toggle');
@@ -67,7 +76,16 @@ async function initialize() {
 
     document.getElementById('link-button').addEventListener('click', handleShowAbout);
 
+    document.getElementById('refetch-exchange').addEventListener('click', handleFetchExchange);
+
     setInitialValues();
+
+    lastFetchTime = Date.now();
+    // test against different times
+    // lastFetchTime = newDateObj = new Date(Date.now() - 5*60000);
+    timeCompareInterval = setInterval(compareFetchTime, COMPARE_FETCH_TIME);
+  
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     const loadingOverlay = document.getElementById('loading-overlay');
     loadingOverlay.parentElement.removeChild(loadingOverlay);
@@ -86,6 +104,70 @@ async function initialize() {
     }
   }
   else {
+    showFetchingError();
+  }
+
+}
+
+function handleVisibilityChange() {
+  if (document.visibilityState === 'hidden') {
+    clearInterval(timeCompareInterval);
+  }
+
+  else if (document.visibilityState === 'visible') {
+    compareFetchTime();
+    timeCompareInterval = setInterval(compareFetchTime, COMPARE_FETCH_TIME);
+  }
+}
+
+function compareFetchTime() {
+  const fetchTime = document.getElementById('fetch-time');
+  const secondsElapsed = Math.floor((new Date() - lastFetchTime) / 1000);
+
+  console.log('secondsElapsed:', secondsElapsed)
+
+  const timeTiers = [
+    { divider: 'day',    plural: 'days',    seconds: 60 * 60 * 24, },
+    { divider: 'hour',   plural: 'hours',   seconds: 60 * 60, },
+    { divider: 'minute', plural: 'minutes', seconds: 60, },
+  ];
+
+  const tier = timeTiers.find(tier => tier.seconds < secondsElapsed);
+  
+  if (tier) {
+    lastFetched.classList.remove('invisible');
+    const timeDiff = Math.floor(secondsElapsed / tier.seconds);
+    fetchTime.innerText = `${timeDiff} ${timeDiff > 1 ? tier.plural : tier.divider}`;
+  }  
+}
+
+async function handleFetchExchange() {
+
+  lastFetched.classList.add('invisible');
+  clearInterval(timeCompareInterval);
+
+  try {
+    const response = await fetch(BITCOIN_API);
+    
+    if (!response.ok) {
+      throw new Error(response.status);
+    }
+
+    const data = await response.json();
+    currentPrice = data.bitcoin.usd;
+
+    if (currentPrice) {
+      const btcOrSatsInput = btcSatsToggle.dataset.selected === 'btc' ? btcInput : satsInput
+      const input = lastEditedInput === 'btc' ? btcOrSatsInput : fiatInput;
+      input.dispatchEvent(new Event('input'));
+
+      lastFetchTime = Date.now();
+      timeCompareInterval = setInterval(compareFetchTime, COMPARE_FETCH_TIME);
+    }
+  }
+
+  catch (error) {
+    console.log(error);
     showFetchingError();
   }
 }
@@ -112,13 +194,16 @@ function setInitialValues() {
 
     if (query.includes("btc")) {
       input = btcInput;
+      lastEditedInput = 'btc';
     }
     else if (query.includes("sat")) {
       input = satsInput;
+      lastEditedInput = 'btc';
       handleToggleUnit({ target: satsToggle });
     }
     else if (query.includes("usd")) {
       input = fiatInput;
+      lastEditedInput = 'fiat';
     }
   }
 
@@ -168,6 +253,7 @@ function handleToggleUnit(e, unit) {
 
 function handleBtcInput(e) {
   const { value } = e.target;
+  lastEditedInput = 'btc';
 
   if (validFloat.test(value)) {
     btcInput.dataset.previousValid = value;
@@ -203,6 +289,7 @@ function handleBtcInput(e) {
 
 function handleSatsInput(e) {
   const { value } = e.target;
+  lastEditedInput = 'btc';
 
   if (validInteger.test(value)) {
     satsInput.dataset.previousValid = value;
@@ -242,6 +329,7 @@ function handleSatsInput(e) {
 
 function handleFiatInput(e) {
   const { value } = e.target;
+  lastEditedInput = 'fiat';
 
   if (validFloat.test(value)) {
     fiatInput.dataset.previousValid = value;

@@ -2,7 +2,7 @@
   <head>
     <meta charset="utf-8">
     <title>B2F – Bitcoin to Fiat Calculator</title>
-    <meta name="description" content="No BS conversion between Bitcoin (BTC) and the world's most used fiat currency - USD.">
+    <meta name="description" content="No BS conversion between Bitcoin (BTC) and the world's most used fiat currencies - USD and Euro.">
     <script src="calculator.js"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -52,6 +52,8 @@
           </div>
         </section>
 
+        <div id="last-fetched" class="refetch-info invisible">Exchange rate fetched <span id="fetch-time"></span> ago. <button id='refetch-exchange'>Refresh</button>.</div>
+
         <section id="section-share">
           <p>
             Type a custom amount in BTC, Sats or USD in the inputs above to share a direct link to that amount:
@@ -69,7 +71,8 @@
       
       <footer>
         <div id='link-button' role="button">About</div>
-        <div id="share-button" class='link-button' role="button">Share</div>
+        <div id="share-button" role="button">Share</div>
+        <a href="https://github.com/handsomelatino/btc2fiat" target="_blank" rel="noreferrer">Github</a>
       </footer>
     </section>
 
