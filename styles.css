@@ -155,8 +155,14 @@ header h1 sub {
   color: red;
 }
 
-#btc-sats-toggle {
+.header-options {
+  display: flex;
+  gap: 12px;
+}
+
+.options-toggle {
   font-size: 16px;
+  font-weight: bold;
   border-radius: 8px;
   border: 1px solid white;
   display: flex;
@@ -164,20 +170,20 @@ header h1 sub {
   cursor: pointer;
 }
 
-#btc-sats-toggle > .toggle {
+.options-toggle > .toggle {
   padding: 4px 8px;
 }
 
-#btc-sats-toggle > .toggle:first-of-type {
+.options-toggle > .toggle:first-of-type {
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
 }
-#btc-sats-toggle > .toggle:last-of-type {
+.options-toggle > .toggle:last-of-type {
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
 }
 
-#btc-sats-toggle > .toggle.selected {
+.options-toggle > .toggle.selected {
   background-color: white;
   color: var(--color-dark);
 }

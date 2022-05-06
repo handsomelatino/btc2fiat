@@ -14,9 +14,16 @@
     <section id="above-the-fold">
       <header>
         <h1><strong>B</strong><sup>2</sup><sub>F</sub></h1>
-        <div id="btc-sats-toggle" data-selected="btc">
-          <div id='btc-toggle' role="button" class="toggle selected" data-value="btc">BTC</div>
-          <div id='sats-toggle' role="button" class="toggle" data-value="sats">Sats</div>
+        <div class="header-options">
+          <div id="usd-eur-toggle" class="options-toggle" data-selected="btc">
+            <div id='usd-toggle' role="button" class="toggle selected" data-value="usd">$</div>
+            <div id='eur-toggle' role="button" class="toggle" data-value="eur">&euro;</div>
+          </div>
+
+          <div id="btc-sats-toggle" class="options-toggle" data-selected="btc">
+            <div id='btc-toggle' role="button" class="toggle selected" data-value="btc">BTC</div>
+            <div id='sats-toggle' role="button" class="toggle" data-value="sats">Sats</div>
+          </div>
         </div>
       </header>
 
@@ -30,11 +37,11 @@
         <section class="calculator">
           <div>
             <div id="btc-input-container" class="currency">
-              <input id="btc-input" class="amount" inputmode="numeric" type="text">
+              <input id="btc-input" class="amount" inputmode="numeric" type="text" autocomplete="off">
               <div class="unit">BTC</div>
             </div>
             <div id="sats-input-container" class="currency hidden">
-              <input id="sats-input" inputmode="numeric" class="amount" type="text">
+              <input id="sats-input" inputmode="numeric" class="amount" type="text" autocomplete="off">
               <div class="unit">Sats</div>
             </div>
             <div id="sats-amount" class='conversion-amount'>0 Sats</div>
@@ -43,16 +50,24 @@
           
           <div class="equal-sign"> = </div>
 
-          <div>
+          <div id="usd-input-container">
             <div class="currency">
-              <input id="fiat-input" type="text" inputmode="numeric" class="amount">
+              <input id="usd-input" type="text" inputmode="numeric" class="amount" autocomplete="off">
               <div class="unit">USD</div>
             </div>
-            <div id="fiat-amount" class='conversion-amount'>$ 0</div>
+            <div id="usd-amount" class='conversion-amount'>$ 0</div>
+          </div>
+
+          <div id="eur-input-container" class="hidden">
+            <div class="currency">
+              <input id="eur-input" type="text" inputmode="numeric" class="amount" autocomplete="off">
+              <div class="unit">EUR</div>
+            </div>
+            <div id="eur-amount" class='conversion-amount'>€ 0</div>
           </div>
         </section>
 
-        <div id="last-fetched" class="refetch-info invisible">Exchange rate fetched <span id="fetch-time"></span> ago. <button id='refetch-exchange'>Refresh</button>.</div>
+        <div id="last-fetched" class="refetch-info invisible">Exchange rate fetched <abbr id="fetch-time"></abbr> ago. <button id='refetch-exchange'>Refresh</button>.</div>
 
         <section id="section-share">
           <p>
@@ -80,8 +95,8 @@
       <section class="about">
         <h2><span>About</span></h2>
 
-        <p class="created-by">No-BS BTC to USD converter. By <a href="https://handsomelatino.com">Handsome Latino</a></p>
-        <p class="powered-by">BTC/USD conversion powered by <a href="https://www.coingecko.com/en/api">CoinGecko API</a></p>
+        <p class="created-by">No-BS BTC to Fiat converter. By <a href="https://handsomelatino.com">Handsome Latino</a></p>
+        <p class="powered-by">Conversion powered by <a href="https://www.coingecko.com/en/api">CoinGecko API</a></p>
         
         <div class="project-info">
           <div class="info-title">BTC<strong>2</strong>Fiat.me</div>

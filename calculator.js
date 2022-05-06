@@ -18,17 +18,28 @@ let lastFetchTime = null;
 // when refetching the exchange rate. Values can be ['btc' or 'fiat']:
 let lastEditedInput = null;
 
+let lastFetched = null;
+
 // Saved query selectors on init:
 let btcInput = null;
 let satsInput = null;
 let btcAmount = null;
 let satsAmount = null;
-let fiatAmount = null;
+
+let usdInput = null;
+let usdAmount = null;
+let eurInput = null;
+let eurAmount = null;
+
 let btcSatsToggle = null;
 let btcToggle = null;
 let satsToggle = null;
+
+let usdEurToggle = null;
+let usdToggle = null;
+let eurToggle = null;
+
 let shareInput = null;
-let lastFetched = null;
 
 window.addEventListener('load', initialize);
 
@@ -41,7 +52,7 @@ async function initialize() {
     }
 
     const data = await response.json();
-    currentPrice = data.bitcoin.usd;
+    currentPrice = data.bitcoin;
   }
   catch (error) {
     console.log(error);
@@ -51,25 +62,37 @@ async function initialize() {
   if (currentPrice !== null) {
     btcInput = document.getElementById('btc-input');
     satsInput = document.getElementById('sats-input');
-    fiatInput = document.getElementById('fiat-input');
     btcAmount = document.getElementById('btc-amount');
     satsAmount = document.getElementById('sats-amount');
-    fiatAmount = document.getElementById('fiat-amount');
+
+    usdInput = document.getElementById('usd-input');
+    eurInput = document.getElementById('eur-input');
+    usdAmount = document.getElementById('usd-amount');
+    eurAmount = document.getElementById('eur-amount');
+
     lastFetched = document.getElementById('last-fetched');
     
     btcSatsToggle = document.getElementById('btc-sats-toggle');
     btcToggle = document.getElementById('btc-toggle');
     satsToggle = document.getElementById('sats-toggle');
 
+    usdEurToggle = document.getElementById('usd-eur-toggle');
+    usdToggle = document.getElementById('usd-toggle');
+    eurToggle = document.getElementById('eur-toggle');
+
     shareInput = document.getElementById('share-input');
 
     btcInput.addEventListener('input', handleBtcInput);
     satsInput.addEventListener('input', handleSatsInput);
-    fiatInput.addEventListener('input', handleFiatInput);
+    usdInput.addEventListener('input', handleUsdInput);
+    eurInput.addEventListener('input', handleEurInput);
 
     btcToggle.addEventListener('click', handleToggleUnit);
     satsToggle.addEventListener('click', handleToggleUnit);
 
+    usdToggle.addEventListener('click', handleToggleFiat);
+    eurToggle.addEventListener('click', handleToggleFiat);
+    
     document.getElementById('share-button').addEventListener('click', handleClickShareButton);
     document.getElementById('share-button-close').addEventListener('click', handleClickShareClose);
     document.getElementById('share-copy-link').addEventListener('click', handleClickCopyLink);
@@ -137,6 +160,7 @@ function compareFetchTime() {
   if (tier) {
     lastFetched.classList.remove('invisible');
     const timeDiff = Math.floor(secondsElapsed / tier.seconds);
+    fetchTime.title = lastFetchTime.toLocaleString();
     fetchTime.innerText = `${timeDiff} ${timeDiff > 1 ? tier.plural : tier.divider}`;
   }  
 }
@@ -154,11 +178,12 @@ async function handleFetchExchange() {
     }
 
     const data = await response.json();
-    currentPrice = data.bitcoin.usd;
+    currentPrice = data.bitcoin;
 
     if (currentPrice) {
       const btcOrSatsInput = btcSatsToggle.dataset.selected === 'btc' ? btcInput : satsInput
-      const input = lastEditedInput === 'btc' ? btcOrSatsInput : fiatInput;
+      const usdOrEurInput = usdEurToggle.dataset.selected === 'usd' ? usdInput : eurInput;
+      const input = lastEditedInput === 'btc' ? btcOrSatsInput : usdOrEurInput;
       input.dispatchEvent(new Event('input'));
 
       lastFetchTime = Date.now();
@@ -202,9 +227,20 @@ function setInitialValues() {
       handleToggleUnit({ target: satsToggle });
     }
     else if (query.includes("usd")) {
-      input = fiatInput;
+      input = usdInput;
       lastEditedInput = 'fiat';
     }
+    else if (query.includes("eur")) {
+      input = eurInput;
+      lastEditedInput = 'fiat';
+      handleToggleFiat({ target: eurToggle });
+    }
+  }
+
+  const cur = params.get('cur')?.toLowerCase();
+
+  if (cur === 'eur') {
+    handleToggleFiat({ target: eurToggle });
   }
 
   input.value = amount;
@@ -251,6 +287,41 @@ function handleToggleUnit(e, unit) {
   }
 }
 
+function handleToggleFiat(e, unit) {
+
+  const { value } = unit || e.target.dataset;
+
+  if (usdEurToggle.dataset.selected !== value) {
+    usdEurToggle.dataset.selected = value;
+    
+    e.target.classList.add('selected');
+
+    const usdInputContainer = document.getElementById('usd-input-container');
+    const eurInputContainer = document.getElementById('eur-input-container');
+
+    if (value === 'usd') {
+      eurToggle.classList.remove('selected');
+
+      usdInputContainer.classList.remove('hidden');
+      eurInputContainer.classList.add('hidden');
+
+      if (shareInput.value.endsWith('usd')) {
+        updateShareURL(eurInput.value, 'eur');
+      }
+    }
+    else {
+      usdToggle.classList.remove('selected');
+
+      eurInputContainer.classList.remove('hidden');
+      usdInputContainer.classList.add('hidden');
+
+      if (shareInput.value.endsWith('eur')) {
+        updateShareURL(usdInput.value, 'usd');
+      }
+    }
+  }
+}
+
 function handleBtcInput(e) {
   const { value } = e.target;
   lastEditedInput = 'btc';
@@ -261,21 +332,28 @@ function handleBtcInput(e) {
 
     if (btc) {
       satsInput.value = btc * SATS_PER_BTC;
-      const usd = (btc * currentPrice).toFixed(btc >= 1 ? 0 : 2);
-      fiatInput.value = usd;
-
+      const usd = (btc * currentPrice.usd).toFixed(btc >= 1 ? 0 : 2);
+      const eur = (btc * currentPrice.eur).toFixed(btc >= 1 ? 0 : 2);
+      
       satsAmount.innerText = `${(btc * SATS_PER_BTC).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Sats`;
       btcAmount.innerText = `${value} BTC`;
-      fiatAmount.innerText = fiatNumberFormat(usd);
+      
+      usdInput.value = usd;
+      usdAmount.innerText = fiatNumberFormat(usd, '$');
+      
+      eurInput.value = eur;
+      eurAmount.innerText = fiatNumberFormat(eur, '€');
 
       updateShareURL(btc, 'btc');
     }
     else {
       satsAmount.innerText = NON_BREAKING_SPACE;
       btcAmount.innerText = NON_BREAKING_SPACE;
-      fiatAmount.innerText = NON_BREAKING_SPACE;
+      usdAmount.innerText = NON_BREAKING_SPACE;
+      eurAmount.innerText = NON_BREAKING_SPACE;
 
-      fiatInput.value = '';
+      eurInput.value = '';
+      usdInput.value = '';
       updateShareURL(null);
     }
   }
@@ -299,23 +377,28 @@ function handleSatsInput(e) {
       const btc = sats / SATS_PER_BTC;
 
       const btcDigits = Math.max(-Math.log10(btc).toFixed() + 2, 2);
-      const fiat = (btc * currentPrice).toFixed(btc >= 1 ? 0 : 2);
+      const usd = (btc * currentPrice.usd).toFixed(btc >= 1 ? 0 : 2);
+      const eur = (btc * currentPrice.eur).toFixed(btc >= 1 ? 0 : 2);
 
       btcInput.value = btc.toFixed(btcDigits);
-      fiatInput.value = fiat;
-
+      usdInput.value = usd;
+      eurInput.value = eur;
+      
       btcAmount.innerText = `${btc.toLocaleString(undefined, { minimumFractionDigits: btcDigits, maximumFractionDigits: btcDigits })} BTC`;
       satsAmount.innerText = `${value} Sats`;
-      fiatAmount.innerText = fiatNumberFormat(fiat);
+      usdAmount.innerText = fiatNumberFormat(usd, '$');
+      eurAmount.innerText = fiatNumberFormat(eur, '€');
 
       updateShareURL(sats, 'sats');
     }
     else {
       satsAmount.innerText = NON_BREAKING_SPACE;
       btcAmount.innerText = NON_BREAKING_SPACE;
-      fiatAmount.innerText = NON_BREAKING_SPACE;
+      usdAmount.innerText = NON_BREAKING_SPACE;
+      eurAmount.innerText = NON_BREAKING_SPACE;
 
-      fiatInput.value = '';
+      usdInput.value = '';
+      eurInput.value = '';
       updateShareURL(null);
     }
   }
@@ -327,46 +410,92 @@ function handleSatsInput(e) {
   checkInputLargeNumbers();
 }
 
-function handleFiatInput(e) {
+function handleUsdInput(e) {
   const { value } = e.target;
   lastEditedInput = 'fiat';
 
   if (validFloat.test(value)) {
-    fiatInput.dataset.previousValid = value;
-    const fiat = parseFloat(value);
+    usdInput.dataset.previousValid = value;
+    const usd = parseFloat(value);
 
-    if (fiat) {
-      const btc = fiat / currentPrice;
+    if (usd) {
+      const btc = usd / currentPrice.usd;
+      const eur = usd * currentPrice.eur / currentPrice.usd;
       const btcDigits = Math.max(-Math.log10(btc).toFixed() + 2, 2);
       btcInput.value = btc.toFixed(btcDigits);
       satsInput.value = (btc * SATS_PER_BTC).toFixed(0);
+      eurInput.value = eur.toFixed(2);
 
       satsAmount.innerText = `${(btc * SATS_PER_BTC).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Sats`;
       btcAmount.innerText = `${btc.toLocaleString(undefined, { minimumFractionDigits: btcDigits, maximumFractionDigits: btcDigits })} BTC`;
-      fiatAmount.innerText = fiatNumberFormat(fiat);
-
+      usdAmount.innerText = fiatNumberFormat(usd, '$');
+      eurAmount.innerText = fiatNumberFormat(eur, '€');
       updateShareURL(parseFloat(value), 'usd');
     }
     else {
       satsAmount.innerText = NON_BREAKING_SPACE;
       btcAmount.innerText = NON_BREAKING_SPACE;
-      fiatAmount.innerText = NON_BREAKING_SPACE;
+      usdAmount.innerText = NON_BREAKING_SPACE;
+      eurAmount.innerText = NON_BREAKING_SPACE;
 
       satsInput.value = '';
       btcInput.value = '';
+      eurInput.value = '';
+
       updateShareURL(null);
     }
   }
   else {
-    fiatInput.value = fiatInput.dataset.previousValid || '';
+    usdInput.value = usdInput.dataset.previousValid || '';
   }
 
   checkInputLargeNumbers();
 }
 
+function handleEurInput(e) {
+  const { value } = e.target;
+  lastEditedInput = 'fiat';
+
+  if (validFloat.test(value)) {
+    eurInput.dataset.previousValid = value;
+    const eur = parseFloat(value);
+
+    if (eur) {
+      const btc = eur / currentPrice.eur;
+      const usd = eur * currentPrice.usd / currentPrice.eur;
+      const btcDigits = Math.max(-Math.log10(btc).toFixed() + 2, 2);
+      btcInput.value = btc.toFixed(btcDigits);
+      satsInput.value = (btc * SATS_PER_BTC).toFixed(0);
+      usdInput.value = usd.toFixed(2);
+
+      satsAmount.innerText = `${(btc * SATS_PER_BTC).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Sats`;
+      btcAmount.innerText = `${btc.toLocaleString(undefined, { minimumFractionDigits: btcDigits, maximumFractionDigits: btcDigits })} BTC`;
+      usdAmount.innerText = fiatNumberFormat(usd, '$');
+      eurAmount.innerText = fiatNumberFormat(eur, '€');
+      updateShareURL(parseFloat(value), 'eur');
+    }
+    else {
+      satsAmount.innerText = NON_BREAKING_SPACE;
+      btcAmount.innerText = NON_BREAKING_SPACE;
+      usdAmount.innerText = NON_BREAKING_SPACE;
+      eurAmount.innerText = NON_BREAKING_SPACE;
+
+      satsInput.value = '';
+      btcInput.value = '';
+      eurInput.value = '';
+
+      updateShareURL(null);
+    }
+  }
+  else {
+    eurInput.value = eurInput.dataset.previousValid || '';
+  }
+
+  checkInputLargeNumbers();
+}
 
 function checkInputLargeNumbers() {
-  const inputs = [satsInput, btcInput, fiatInput];
+  const inputs = [satsInput, btcInput, usdInput, eurInput];
   
   for (let input of inputs) {
     if (input.value.length > 8) {
@@ -381,9 +510,10 @@ function checkInputLargeNumbers() {
 /**
  * Convert large fiat numbers into readable units, IE: 4200000 -> $4.2 million
  * @param {float} fiat - Fiat amount in USD
+ * @param {(usd|eur)} symbol - Currency Symbol
  * @returns {string} - Formatted amount or non-breaking space if amount does not exceed required value
  */
-function fiatNumberFormat(fiat) {
+function fiatNumberFormat(fiat, symbol) {
 
   const tiers = [
     { max: 1000000000,       divider: 1000000,       denomination: "Million" },
@@ -406,7 +536,7 @@ function fiatNumberFormat(fiat) {
         dividedValue = dividedValue.slice(0, -1);
       }
       
-      return `≈ $${dividedValue} ${tier.denomination}`;
+      return `≈ ${symbol}${dividedValue} ${tier.denomination}`;
     }
   }
 
