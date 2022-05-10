@@ -1,6 +1,6 @@
 # BTC2FIAT
 
-No BS, clean, and simple BTC to USD converter hosted at [btc2fiat.me](https://btc2fiat.me). Open source, lightweight (less than 30 KB) converter developed for Bitcoin enthusiasts and digital minimalists, built out of frustration of how much noise surrounds most of the Bitcoin space.
+No BS, clean, and simple BTC to Fiat converter hosted at [btc2fiat.me](https://btc2fiat.me). Open source, lightweight (< 50 KB plain HTML and vanilla Javascript) converter developed for Bitcoin enthusiasts and digital minimalists, built out of frustration of how much noise surrounds most of the Bitcoin space.
 
 ![B2F](https://user-images.githubusercontent.com/100208905/163191012-91e73714-7f0e-4f5d-83bf-4262df1de1fa.png)
 
@@ -28,7 +28,7 @@ Feel free to submit any bugs or suggestions, PR's are open but I am still refact
 
 The following features are being thought / worked on:
 
-- Multiple fiat currencies (for now the rationale is that this converter is centered around the world's leading cryptocurrency vs. the world's leading fiat currency).
+- Multiple fiat currencies (for now the rationale is that this converter is centered around the world's leading cryptocurrency vs. the world's leading fiat currencies).
 
 - Toggle between light and dark mode.
 
