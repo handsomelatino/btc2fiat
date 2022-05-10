@@ -1,7 +1,7 @@
 // Constants
 const BITCOIN_API = 'https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd,eur&ids=bitcoin';
 const SATS_PER_BTC = 100000000;
-const BTC_PRECISION = Math.pow(10*8);
+const BTC_PRECISION_DIGITS = 8;
 const B2F_URL = "https://btc2fiat.me";
 const NON_BREAKING_SPACE = '\xa0';
 const COMPARE_FETCH_TIME = 30 * 1000;
@@ -146,8 +146,6 @@ function handleVisibilityChange() {
 function compareFetchTime() {
   const fetchTime = document.getElementById('fetch-time');
   const secondsElapsed = Math.floor((new Date() - lastFetchTime) / 1000);
-
-  console.log('secondsElapsed:', secondsElapsed)
 
   const timeTiers = [
     { divider: 'day',    plural: 'days',    seconds: 60 * 60 * 24, },
@@ -305,8 +303,8 @@ function handleToggleFiat(e, unit) {
       usdInputContainer.classList.remove('hidden');
       eurInputContainer.classList.add('hidden');
 
-      if (shareInput.value.endsWith('usd')) {
-        updateShareURL(eurInput.value, 'eur');
+      if (shareInput.value.endsWith('eur')) {
+        updateShareURL(usdInput.value, 'usd');
       }
     }
     else {
@@ -315,18 +313,27 @@ function handleToggleFiat(e, unit) {
       eurInputContainer.classList.remove('hidden');
       usdInputContainer.classList.add('hidden');
 
-      if (shareInput.value.endsWith('eur')) {
-        updateShareURL(usdInput.value, 'usd');
+      if (shareInput.value.endsWith('usd')) {
+        updateShareURL(eurInput.value, 'eur');
       }
     }
   }
 }
 
 function handleBtcInput(e) {
-  const { value } = e.target;
+  let { value } = e.target;
   lastEditedInput = 'btc';
 
   if (validFloat.test(value)) {
+
+    // trim all digits past the maximum precision:
+    if (value.includes('.') && value.split('.')[1].length > BTC_PRECISION_DIGITS) {
+      const concatenateLength = value.split('.')[0].length + 1 + BTC_PRECISION_DIGITS;
+
+      value = value.slice(0, concatenateLength);
+      btcInput.value = value;
+    }
+
     btcInput.dataset.previousValid = value;
     const btc = parseFloat(value);
 
@@ -421,12 +428,12 @@ function handleUsdInput(e) {
     if (usd) {
       const btc = usd / currentPrice.usd;
       const eur = usd * currentPrice.eur / currentPrice.usd;
-      const btcDigits = Math.max(-Math.log10(btc).toFixed() + 2, 2);
+      const btcDigits = minMax(2, -Math.log10(btc).toFixed() + 2, BTC_PRECISION_DIGITS);
       btcInput.value = btc.toFixed(btcDigits);
       satsInput.value = (btc * SATS_PER_BTC).toFixed(0);
       eurInput.value = eur.toFixed(2);
 
-      satsAmount.innerText = `${(btc * SATS_PER_BTC).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Sats`;
+      satsAmount.innerText = `${btc.toFixed(BTC_PRECISION_DIGITS)} BTC`;
       btcAmount.innerText = `${btc.toLocaleString(undefined, { minimumFractionDigits: btcDigits, maximumFractionDigits: btcDigits })} BTC`;
       usdAmount.innerText = fiatNumberFormat(usd, '$');
       eurAmount.innerText = fiatNumberFormat(eur, '€');
@@ -463,12 +470,12 @@ function handleEurInput(e) {
     if (eur) {
       const btc = eur / currentPrice.eur;
       const usd = eur * currentPrice.usd / currentPrice.eur;
-      const btcDigits = Math.max(-Math.log10(btc).toFixed() + 2, 2);
+      const btcDigits = minMax(2, -Math.log10(btc).toFixed() + 2, BTC_PRECISION_DIGITS);
       btcInput.value = btc.toFixed(btcDigits);
       satsInput.value = (btc * SATS_PER_BTC).toFixed(0);
       usdInput.value = usd.toFixed(2);
 
-      satsAmount.innerText = `${(btc * SATS_PER_BTC).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Sats`;
+      satsAmount.innerText = `${btc.toFixed(BTC_PRECISION_DIGITS)} BTC`;
       btcAmount.innerText = `${btc.toLocaleString(undefined, { minimumFractionDigits: btcDigits, maximumFractionDigits: btcDigits })} BTC`;
       usdAmount.innerText = fiatNumberFormat(usd, '$');
       eurAmount.innerText = fiatNumberFormat(eur, '€');
@@ -498,7 +505,7 @@ function checkInputLargeNumbers() {
   const inputs = [satsInput, btcInput, usdInput, eurInput];
   
   for (let input of inputs) {
-    if (input.value.length > 8) {
+    if (input.value.length > 10) {
       input.classList.add('large-numbers');
     }
     else {
@@ -535,8 +542,10 @@ function fiatNumberFormat(fiat, symbol) {
       else if (dividedValue.endsWith('0')) {
         dividedValue = dividedValue.slice(0, -1);
       }
+
+      isExact = parseFloat(dividedValue) * tier.divider === fiat;
       
-      return `≈ ${symbol}${dividedValue} ${tier.denomination}`;
+      return `${isExact ? '' : '≈ '}${symbol}${dividedValue} ${tier.denomination}`;
     }
   }
 
@@ -596,4 +605,15 @@ function handleClickCopyLink() {
     clearTimeout(copyLinkTimer);
     copyLinkTimer = setTimeout(() => linkCopied.classList.remove('link-copied-reveal'), 1500);
   });
+}
+
+/**
+ * Apply Math.min + Math.max to a number
+ * @param {number} min - minimum number (inclusive)
+ * @param {number} number - number in the middle
+ * @param {number} max - maximum number (exclusive)
+ * @returns {number}
+ */
+function minMax(min, number, max) {
+  return Math.min(Math.max(number, min), max);
 }
