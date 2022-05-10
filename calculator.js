@@ -383,7 +383,7 @@ function handleSatsInput(e) {
     if (sats) {
       const btc = sats / SATS_PER_BTC;
 
-      const btcDigits = Math.max(-Math.log10(btc).toFixed() + 2, 2);
+      const btcDigits = minMax(2, -Math.log10(btc).toFixed() + 2, BTC_PRECISION_DIGITS);
       const usd = (btc * currentPrice.usd).toFixed(btc >= 1 ? 0 : 2);
       const eur = (btc * currentPrice.eur).toFixed(btc >= 1 ? 0 : 2);
 
